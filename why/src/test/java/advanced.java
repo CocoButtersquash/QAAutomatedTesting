@@ -1,12 +1,27 @@
 import ExtentReports.ExtentReportManager;
 import ExtentReports.ReportDetails;
+import Spreadsheets.SpreadSheetReader;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
+import com.gargoylesoftware.htmlunit.ElementNotFoundException;
+import com.sun.deploy.security.DeployURLClassPathCallback;
 import org.junit.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.FluentWait;
+import org.openqa.selenium.support.ui.Wait;
 import shoppingPages.index;
+import shoppingPages.signUp;
+
+import java.security.cert.Extension;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 
 /**
  * Created by Administrator on 06/09/2017.
@@ -14,6 +29,8 @@ import shoppingPages.index;
 public class advanced {
     private WebDriver webDriver;
     private static ExtentReportManager reportManager;
+    SpreadSheetReader sheetReader = new SpreadSheetReader(System.getProperty("user.dir") + "/src/main/resources/users.xlsx");
+
 
 
     @BeforeClass
@@ -31,7 +48,7 @@ public class advanced {
 
     @After
     public void tearDown(){
-        webDriver.quit();
+        //webDriver.quit();
     }
 
     @AfterClass
@@ -78,9 +95,73 @@ public class advanced {
             extentTest.fail(details);
         }
     }
+    @Test
     public void signUp(){
+        ExtentTest extentTest = reportManager.setUpTest();
+        Actions mover = new Actions(webDriver);
+        PageFactory.initElements(webDriver,index.class);
+        PageFactory.initElements(webDriver, signUp.class);
+        extentTest.log(Status.INFO,"Initialising Variables from pages");
+
+        webDriver.navigate().to("http://automationpractice.com/index.php");
+        extentTest.log(Status.INFO,"navigating to sign up");
+        index.signUpLink.click();
 
 
+
+        signUp.createEmail.sendKeys("Test@Notreal.MadeUp");
+            signUp.createBtn.click();
+            extentTest.log(Status.INFO, "Attempting new sign up ");
+
+        try {
+            waituntil();
+        }
+        catch (Exception t)
+        {
+            String details = "email already registered "+ t;
+            extentTest.fail(details);
+            return;
+
+        }
+
+
+
+
+
+        signUp.maleRad.click();
+        signUp.firstnameCreate.sendKeys("MAN");
+        signUp.lastNameCreate.sendKeys("MAN");
+        signUp.passwordCreate.sendKeys("P@55word");
+        signUp.selecter(signUp.dobDay,"12");
+        signUp.selecter(signUp.dobMonth,"10");
+        signUp.selecter(signUp.dobYear,"1990");
+        signUp.address1.sendKeys("29 HouseOn Street");
+        signUp.cityAddress.sendKeys("Manchester");
+        signUp.selecter(signUp.stateAddress,"7");
+        signUp.selecter(signUp.countryAddress,"21");
+        signUp.zipAddress.sendKeys("20500");
+        signUp.mobilePhone.sendKeys("12345678910");
+        signUp.alias.sendKeys("home");
+        signUp.registerButton.click();
+        extentTest.log(Status.INFO,"completing fields");
+
+        try {
+            Assert.assertNotEquals(webDriver.getCurrentUrl(), "http://automationpractice.com/index.php?controller=authentication");
+            extentTest.pass("account created");
+        }
+        catch(AssertionError e){
+            String details = "failed because of " + e;
+            extentTest.fail(details);
+
+
+
+        }
+
+    }
+    @Test
+    public void signIn(){
+
+        
     }
 
 
@@ -97,6 +178,20 @@ public class advanced {
 
     }
 
+
+    private void waituntil(){
+        Wait<WebDriver> wait = new FluentWait<WebDriver>(webDriver)
+                .withTimeout(20, TimeUnit.SECONDS)
+                .pollingEvery(5, TimeUnit.SECONDS)
+                .ignoring(NoSuchElementException.class);
+        WebElement magic = wait.until(new Function<WebDriver, WebElement>() {
+            @Override
+            public WebElement apply(WebDriver webDriver) {
+                return webDriver.findElement(By.cssSelector("#id_gender2"));
+            }
+        });
+
+    }
 
 
 
