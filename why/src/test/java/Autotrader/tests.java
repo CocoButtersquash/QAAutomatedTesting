@@ -160,8 +160,8 @@ public class tests {
         Assert.assertTrue(Home.dealerSearchH1.getText().contains("CH1"));
 
     }
-    @Test
-    public void fin
+    //@Test
+    //public void fin
 
 
 
