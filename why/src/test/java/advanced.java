@@ -160,8 +160,20 @@ public class advanced {
     }
     @Test
     public void signIn(){
+        ExtentTest extentTest = reportManager.setUpTest();
+        PageFactory.initElements(webDriver,index.class);
+        PageFactory.initElements(webDriver,signUp.class);
+        extentTest.log(Status.INFO,"attempting to navigate to automationpractice.com");
+        webDriver.navigate().to("http://automationpractice.com/index.php?controller=authentication&back=my-account");
+        signUp.emailCreate.sendKeys();
 
-        
+        extentTest.log(Status.INFO,"Test@Notreal.MadeUp");
+        webDriver.findElement(By.id("passwd")).sendKeys("P@55word");
+        extentTest.log(Status.INFO,"");
+
+
+
+
     }
 
 
